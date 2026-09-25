@@ -8,7 +8,7 @@ export interface ToastMessage {
   type: ToastType
 }
 
-const TOAST_DURATION_MS = 3500
+const TOAST_DURATION_MS = 1500
 
 let nextToastId = 0
 
