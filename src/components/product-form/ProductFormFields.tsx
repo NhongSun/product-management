@@ -60,7 +60,9 @@ export function ProductFormFields({
           onChange={(e) => onChange('category', e.target.value)}
           className={inputClassName(!!errors.category)}
         >
-          <option value="">-- กรุณาเลือกหมวดหมู่ --</option>
+          <option value="" disabled>
+            -- กรุณาเลือกหมวดหมู่ --
+          </option>
           {CATEGORIES.map((category) => (
             <option key={category} value={category}>
               {category}
