@@ -20,13 +20,6 @@ export function AppHeader() {
             </p>
           </div>
         </div>
-
-        <div className="flex items-center space-x-4">
-          <div className="hidden items-center rounded-lg border border-slate-200 bg-slate-100 px-3 py-1.5 text-xs text-slate-500 md:flex">
-            <span className="mr-2 h-2 w-2 animate-pulse rounded-full bg-emerald-500" />
-            ระบบพร้อมใช้งาน (Frontend Track B: ProductList)
-          </div>
-        </div>
       </div>
     </header>
   )
