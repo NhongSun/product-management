@@ -20,7 +20,9 @@ export function ProductRow({ product, onSell }: ProductRowProps) {
         isOutOfStock ? 'bg-red-100 hover:bg-red-200' : 'hover:bg-slate-50'
       }`}
     >
-      <td className={`${cell} font-mono font-medium whitespace-nowrap text-slate-900`}>
+      <td
+        className={`${cell} font-mono font-medium whitespace-nowrap text-slate-900`}
+      >
         {product.sku}
       </td>
       <td className={`${cell} font-medium text-slate-900`}>
@@ -36,7 +38,9 @@ export function ProductRow({ product, onSell }: ProductRowProps) {
       <td className={`${cell} text-center whitespace-nowrap`}>
         <CategoryBadge category={product.category} />
       </td>
-      <td className={`${cell} text-right font-mono font-semibold whitespace-nowrap text-slate-800`}>
+      <td
+        className={`${cell} text-right font-mono font-semibold whitespace-nowrap text-slate-800`}
+      >
         ฿{formatBaht(product.price)}
       </td>
       <td className={`${cell} text-center whitespace-nowrap`}>
@@ -49,7 +53,10 @@ export function ProductRow({ product, onSell }: ProductRowProps) {
         </span>
       </td>
       <td className={`${cell} text-center whitespace-nowrap`}>
-        <SellButton disabled={isOutOfStock} onClick={() => onSell(product.id)} />
+        <SellButton
+          disabled={isOutOfStock}
+          onClick={() => onSell(product.id)}
+        />
       </td>
     </tr>
   )

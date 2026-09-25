@@ -8,7 +8,9 @@ export function FormHeader() {
           <Plus className="h-5 w-5" />
         </div>
         <div>
-          <h2 className="text-base font-bold text-slate-900">เพิ่มสินค้าใหม่</h2>
+          <h2 className="text-base font-bold text-slate-900">
+            เพิ่มสินค้าใหม่
+          </h2>
           <p className="text-xs text-slate-500">ลงทะเบียนสินค้าเข้าสู่ระบบ</p>
         </div>
       </div>

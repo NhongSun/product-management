@@ -35,7 +35,9 @@ function App() {
 
   function handleAdd(product: Omit<Product, 'id' | 'createdAt'>) {
     addProduct(product)
-    showToast(`เพิ่มสินค้า "${product.name}" (SKU: ${product.sku}) เรียบร้อยแล้ว`)
+    showToast(
+      `เพิ่มสินค้า "${product.name}" (SKU: ${product.sku}) เรียบร้อยแล้ว`,
+    )
   }
 
   return (

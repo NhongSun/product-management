@@ -25,7 +25,10 @@ export function ProductList({ products, onSell }: ProductListProps) {
     () => getFilteredProducts(products, selectedCategory, searchQuery),
     [products, selectedCategory, searchQuery],
   )
-  const summary = useMemo(() => calcSummary(filteredProducts), [filteredProducts])
+  const summary = useMemo(
+    () => calcSummary(filteredProducts),
+    [filteredProducts],
+  )
 
   return (
     <section className="flex flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm lg:col-span-8">

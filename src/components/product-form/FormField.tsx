@@ -9,10 +9,19 @@ interface FormFieldProps {
   children: ReactNode
 }
 
-export function FormField({ htmlFor, label, hint, error, children }: FormFieldProps) {
+export function FormField({
+  htmlFor,
+  label,
+  hint,
+  error,
+  children,
+}: FormFieldProps) {
   return (
     <div>
-      <label htmlFor={htmlFor} className="mb-1 block text-xs font-semibold text-slate-700">
+      <label
+        htmlFor={htmlFor}
+        className="mb-1 block text-xs font-semibold text-slate-700"
+      >
         {label}
         {hint && <span className="text-red-500"> {hint}</span>}
       </label>

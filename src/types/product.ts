@@ -1,4 +1,9 @@
-export const CATEGORIES = ['อาหาร', 'เครื่องดื่ม', 'ของใช้', 'เสื้อผ้า'] as const
+export const CATEGORIES = [
+  'อาหาร',
+  'เครื่องดื่ม',
+  'ของใช้',
+  'เสื้อผ้า',
+] as const
 
 export type Category = (typeof CATEGORIES)[number]
 

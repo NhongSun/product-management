@@ -2,7 +2,10 @@ import { CATEGORIES } from '../../types/product'
 import { inputClassName } from '../ui/inputStyles'
 import { SelectInput } from '../ui/SelectInput'
 import { TextInput } from '../ui/TextInput'
-import type { ProductFormErrors, ProductFormValues } from '../../utils/validateProduct'
+import type {
+  ProductFormErrors,
+  ProductFormValues,
+} from '../../utils/validateProduct'
 import { FormField } from './FormField'
 import { SkuInput } from './SkuInput'
 
@@ -46,7 +49,11 @@ export function ProductFormFields({
         />
       </FormField>
 
-      <FormField htmlFor="form-category" label="หมวดหมู่สินค้า" error={errors.category}>
+      <FormField
+        htmlFor="form-category"
+        label="หมวดหมู่สินค้า"
+        error={errors.category}
+      >
         <SelectInput
           id="form-category"
           value={values.category}
@@ -75,7 +82,11 @@ export function ProductFormFields({
             placeholder="0.00"
           />
         </FormField>
-        <FormField htmlFor="form-stock" label="สต็อกเริ่มต้น" error={errors.stock}>
+        <FormField
+          htmlFor="form-stock"
+          label="สต็อกเริ่มต้น"
+          error={errors.stock}
+        >
           <TextInput
             id="form-stock"
             type="number"

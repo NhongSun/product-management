@@ -3,8 +3,7 @@ import { mockProducts } from '../data/mockProducts'
 import type { Product } from '../types/product'
 
 export type SellResult =
-  | { ok: true; product: Product }
-  | { ok: false; product?: Product }
+  { ok: true; product: Product } | { ok: false; product?: Product }
 
 export function useProducts(initialProducts: Product[] = mockProducts) {
   const [products, setProducts] = useState<Product[]>(initialProducts)

@@ -5,7 +5,10 @@ export function ProductSummary({ summary }: { summary: Summary }) {
   return (
     <div className="flex flex-col items-center justify-end gap-4 border-t border-slate-200 bg-slate-50 p-5 sm:flex-row">
       <div className="flex flex-wrap items-center gap-6">
-        <SummaryItem label="จำนวนรายการที่แสดง" value={`${summary.count} รายการ`} />
+        <SummaryItem
+          label="จำนวนรายการที่แสดง"
+          value={`${summary.count} รายการ`}
+        />
         <SummaryItem
           label="จำนวนคงเหลือรวม"
           value={`${formatNumber(summary.totalStock)} ชิ้น`}
@@ -35,7 +38,9 @@ interface SummaryItemProps {
 
 function SummaryItem({ label, value, divided }: SummaryItemProps) {
   return (
-    <div className={`text-right ${divided ? 'border-l border-slate-300 pl-6' : ''}`}>
+    <div
+      className={`text-right ${divided ? 'border-l border-slate-300 pl-6' : ''}`}
+    >
       <span className="block text-xs text-slate-500">{label}</span>
       <span className="text-base font-bold text-slate-800">{value}</span>
     </div>

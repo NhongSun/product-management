@@ -7,7 +7,12 @@ interface SkuInputProps {
   onGenerate: () => void
 }
 
-export function SkuInput({ value, hasError, onChange, onGenerate }: SkuInputProps) {
+export function SkuInput({
+  value,
+  hasError,
+  onChange,
+  onGenerate,
+}: SkuInputProps) {
   return (
     <div className="flex gap-2">
       <TextInput

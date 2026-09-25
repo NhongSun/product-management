@@ -12,7 +12,12 @@ const toneStyles = {
   amber: { icon: 'bg-amber-50 text-amber-600', value: 'text-amber-600' },
 }
 
-export function StatCard({ icon: Icon, label, value, tone = 'emerald' }: StatCardProps) {
+export function StatCard({
+  icon: Icon,
+  label,
+  value,
+  tone = 'emerald',
+}: StatCardProps) {
   const styles = toneStyles[tone]
 
   return (

@@ -8,14 +8,20 @@ interface PageHeaderProps {
   lowStockCount: number
 }
 
-export function PageHeader({ totalItems, totalStock, lowStockCount }: PageHeaderProps) {
+export function PageHeader({
+  totalItems,
+  totalStock,
+  lowStockCount,
+}: PageHeaderProps) {
   return (
     <div className="flex flex-col justify-between gap-4 pb-6 md:flex-row md:items-center">
       <div>
         <div className="mb-1 flex items-center space-x-2 text-xs text-slate-500">
           <span>คลังสินค้า</span>
           <span>/</span>
-          <span className="font-medium text-emerald-700">รายการสินค้าทั้งหมด</span>
+          <span className="font-medium text-emerald-700">
+            รายการสินค้าทั้งหมด
+          </span>
         </div>
         <h1 className="flex items-center gap-2 text-2xl font-bold tracking-tight text-slate-900">
           <span>จัดการรายการสินค้า</span>
