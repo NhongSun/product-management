@@ -63,7 +63,7 @@ export function ProductFormFields({
       </FormField>
 
       <div className="grid grid-cols-2 gap-3">
-        <FormField htmlFor="form-price" label="ราคา (บาท)" hint="(> 0)" error={errors.price}>
+        <FormField htmlFor="form-price" label="ราคา (บาท)" error={errors.price}>
           <TextInput
             id="form-price"
             type="number"
@@ -75,7 +75,7 @@ export function ProductFormFields({
             placeholder="0.00"
           />
         </FormField>
-        <FormField htmlFor="form-stock" label="สต็อกเริ่มต้น" hint="(>= 0)" error={errors.stock}>
+        <FormField htmlFor="form-stock" label="สต็อกเริ่มต้น" error={errors.stock}>
           <TextInput
             id="form-stock"
             type="number"

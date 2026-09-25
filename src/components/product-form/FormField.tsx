@@ -13,7 +13,8 @@ export function FormField({ htmlFor, label, hint, error, children }: FormFieldPr
   return (
     <div>
       <label htmlFor={htmlFor} className="mb-1 block text-xs font-semibold text-slate-700">
-        {label} <span className="text-red-500">*{hint && ` ${hint}`}</span>
+        {label}
+        {hint && <span className="text-red-500"> {hint}</span>}
       </label>
       {children}
       <FieldError message={error} />
