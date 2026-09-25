@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FlowAccount - ระบบจัดการสินค้า (Product Management)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Prompt:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Sarabun', 'sans-serif'],
+            display: ['Prompt', 'sans-serif'],
+          },
+          colors: {
+            flow: {
+              50: '#f0fdf4',
+              100: '#dcfce7',
+              500: '#22c55e',
+              600: '#16a34a',
+              700: '#15803d',
+              800: '#166534',
+              header: '#1e7e48',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Custom styling matching FlowAccount brand and test requirements */
+    body {
+      font-family: 'Sarabun', sans-serif;
+      background-color: #f8fafc;
+    }
+    h1, h2, h3, .font-heading {
+      font-family: 'Prompt', sans-serif;
+    }
+    /* Challenge CSS Requirements */
+    .table-bordered-custom {
+      border: 1px solid #cbd5e1;
+      border-collapse: collapse;
+    }
+    .table-bordered-custom th, .table-bordered-custom td {
+      border: 1px solid #e2e8f0;
+    }
+    .table-header-flow {
+      background-color: #1e7e48; /* เขียว FlowAccount */
+      color: #ffffff;
+    }
+    .stock-empty-row {
+      background-color: #fee2e2 !important; /* พื้นหลังสีแดงอ่อนสำหรับสต็อก = 0 */
+    }
+    .stock-empty-row:hover {
+      background-color: #fecaca !important;
+    }
+    .stock-low-text {
+      color: #dc2626 !important; /* สีแดง */
+      font-weight: 700 !important; /* ตัวหนา สำหรับสต็อก < 10 */
+    }
+  </style>
+</head>
+<body class="min-h-screen text-slate-800 flex flex-col">
+
+  <!-- FlowAccount Top Bar Navigation -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-lg bg-emerald-600 flex items-center justify-center text-white font-bold text-xl shadow-md">
+          FA
+        </div>
+        <div>
+          <div class="flex items-center space-x-2">
+            <span class="font-display font-bold text-lg text-slate-900 tracking-tight">FlowAccount</span>
+            <span class="text-xs bg-emerald-100 text-emerald-800 font-medium px-2 py-0.5 rounded-full border border-emerald-200">SME Edition</span>
+          </div>
+          <p class="text-xs text-slate-500">ระบบจัดการสินค้า (Product Management)</p>
+        </div>
+      </div>
+
+      <!-- User & Quick Status -->
+      <div class="flex items-center space-x-4">
+        <div class="hidden md:flex items-center text-xs text-slate-500 bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 mr-2 animate-pulse"></span>
+          ระบบพร้อมใช้งาน (Frontend Track B: ProductList)
+        </div>
+        <div class="flex items-center space-x-2 border-l border-slate-200 pl-4">
+          <div class="w-8 h-8 rounded-full bg-emerald-700 text-white font-semibold flex items-center justify-center text-xs">
+            สม
+          </div>
+          <div class="text-left hidden sm:block">
+            <div class="text-xs font-semibold text-slate-700">ร้านค้าสมบูรณ์พาณิชย์</div>
+            <div class="text-[11px] text-slate-400">admin@sme-shop.th</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Notification Toast Container -->
+  <div id="toast-container" class="fixed top-20 right-6 z-50 flex flex-col space-y-2 pointer-events-none transition-all"></div>
+
+  <!-- Main Content Container -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    
+    <!-- Header Section with Breadcrumb & Quick Actions -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between pb-6 gap-4">
+      <div>
+        <div class="flex items-center space-x-2 text-xs text-slate-500 mb-1">
+          <span>คลังสินค้า</span>
+          <span>/</span>
+          <span class="text-emerald-700 font-medium">รายการสินค้าทั้งหมด</span>
+        </div>
+        <h1 class="text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
+          <span>จัดการรายการสินค้า</span>
+          <span id="badge-total-items" class="text-xs px-2.5 py-1 bg-slate-200 text-slate-700 rounded-full font-sans font-medium">4 รายการ</span>
+        </h1>
+        <p class="text-sm text-slate-500 mt-0.5">ระบบควบคุมคลังสินค้า ตรวจสอบสต็อก ตัดยอดขาย และลงทะเบียนสินค้าใหม่</p>
+      </div>
+
+      <!-- Quick Metrics Summary Cards -->
+      <div class="flex items-center gap-3">
+        <div class="bg-white px-4 py-2.5 rounded-xl border border-slate-200 shadow-sm flex items-center space-x-3">
+          <div class="p-2 bg-emerald-50 rounded-lg text-emerald-600">
+            <i data-lucide="package-check" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <div class="text-xs text-slate-500">สต็อกคงเหลือรวม</div>
+            <div id="stat-total-stock" class="text-base font-bold text-slate-800">75 ชิ้น</div>
+          </div>
+        </div>
+        <div class="bg-white px-4 py-2.5 rounded-xl border border-slate-200 shadow-sm flex items-center space-x-3">
+          <div class="p-2 bg-amber-50 rounded-lg text-amber-600">
+            <i data-lucide="alert-triangle" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <div class="text-xs text-slate-500">สินค้าใกล้หมด/หมด</div>
+            <div id="stat-low-stock-count" class="text-base font-bold text-amber-600">2 รายการ</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Grid Layout: Product Table (Left/Center) + Add Product Form (Right/Bottom) -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      
+      <!-- LEFT / MAIN: Product List Component (8 cols) -->
+      <section class="lg:col-span-8 bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
+        
+        <!-- Filter & Control Toolbar (Challenge 2) -->
+        <div class="p-5 border-b border-slate-200 bg-white flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          
+          <!-- Category Filter Dropdown -->
+          <div class="flex items-center space-x-3 w-full sm:w-auto">
+            <label for="category-filter" class="text-sm font-semibold text-slate-700 whitespace-nowrap flex items-center gap-1.5">
+              <i data-lucide="filter" class="w-4 h-4 text-emerald-600"></i>
+              หมวดหมู่:
+            </label>
+            <div class="relative w-full sm:w-56">
+              <select id="category-filter" onchange="handleCategoryChange(event)"
+                class="w-full appearance-none bg-slate-50 border border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:bg-white focus:ring-2 focus:ring-emerald-100 rounded-lg px-3.5 py-2 text-sm text-slate-800 font-medium outline-none transition-all cursor-pointer">
+                <option value="ทั้งหมด">ทั้งหมด (All Categories)</option>
+                <option value="อาหาร">อาหาร</option>
+                <option value="เครื่องดื่ม">เครื่องดื่ม</option>
+                <option value="ของใช้">ของใช้</option>
+                <option value="เสื้อผ้า">เสื้อผ้า</option>
+              </select>
+              <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2.5 text-slate-500">
+                <i data-lucide="chevron-down" class="w-4 h-4"></i>
+              </div>
+            </div>
+          </div>
+
+          <!-- Search Input for UX Polish -->
+          <div class="relative w-full sm:w-64">
+            <input type="text" id="search-input" oninput="handleSearchInput(event)" placeholder="ค้นหาชื่อสินค้า หรือ SKU..."
+              class="w-full bg-slate-50 border border-slate-300 focus:border-emerald-600 focus:bg-white focus:ring-2 focus:ring-emerald-100 rounded-lg pl-9 pr-3.5 py-2 text-sm text-slate-800 placeholder-slate-400 outline-none transition-all">
+            <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+              <i data-lucide="search" class="w-4 h-4"></i>
+            </div>
+          </div>
+        </div>
+
+        <!-- Legend / Condition Reminder -->
+        <div class="bg-slate-50 px-5 py-2.5 border-b border-slate-200 text-xs text-slate-600 flex flex-wrap items-center gap-4">
+          <span class="font-medium text-slate-700">เงื่อนไขการแสดงผล:</span>
+          <span class="inline-flex items-center gap-1.5">
+            <span class="w-3 h-3 rounded bg-red-100 border border-red-300 inline-block"></span>
+            สินค้าหมดสต็อก (Stock = 0)
+          </span>
+          <span class="inline-flex items-center gap-1.5">
+            <span class="font-bold text-red-600">ตัวหนาสีแดง</span>
+            สินค้าใกล้หมด (Stock &lt; 10)
+          </span>
+        </div>
+
+        <!-- Challenge 1: Product Table View -->
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-sm table-bordered-custom">
+            <!-- Header has background green matching requirements -->
+            <thead class="table-header-flow text-xs uppercase font-display font-semibold tracking-wider">
+              <tr>
+                <th scope="col" class="py-3 px-4 text-white">รหัสสินค้า (SKU)</th>
+                <th scope="col" class="py-3 px-4 text-white">ชื่อสินค้า</th>
+                <th scope="col" class="py-3 px-4 text-white text-center">หมวดหมู่</th>
+                <th scope="col" class="py-3 px-4 text-white text-right">ราคา (บาท)</th>
+                <th scope="col" class="py-3 px-4 text-white text-center">สต็อก (ชิ้น)</th>
+                <th scope="col" class="py-3 px-4 text-white text-center">การจัดการ</th>
+              </tr>
+            </thead>
+            <tbody id="product-table-body" class="divide-y divide-slate-200 bg-white">
+              <!-- Rendered dynamically by JavaScript -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Empty State (if filter yields 0 items) -->
+        <div id="empty-state" class="hidden p-12 text-center">
+          <div class="w-12 h-12 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center mx-auto mb-3">
+            <i data-lucide="package-x" class="w-6 h-6"></i>
+          </div>
+          <h4 class="font-semibold text-slate-700">ไม่พบรายการสินค้า</h4>
+          <p class="text-sm text-slate-500 mt-1">ลองเปลี่ยนหมวดหมู่ตัวกรอง หรือค้นหาด้วยคำอื่น</p>
+        </div>
+
+        <!-- Challenge 3: Calculation & Summary Section (ด้านล่างตาราง) -->
+        <div class="bg-slate-50 p-5 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div class="text-xs text-slate-500 flex items-center gap-2">
+            <i data-lucide="calculator" class="w-4 h-4 text-slate-400"></i>
+            <span>สรุปตามเงื่อนไขตัวกรองปัจจุบัน (Real-time calculation)</span>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-6">
+            <!-- Total Count -->
+            <div class="text-right">
+              <span class="text-xs text-slate-500 block">จำนวนรายการที่แสดง</span>
+              <span id="summary-filtered-count" class="text-base font-bold text-slate-800">4 รายการ</span>
+            </div>
+
+            <!-- Total Stock Quantity -->
+            <div class="text-right border-l border-slate-300 pl-6">
+              <span class="text-xs text-slate-500 block">จำนวนคงเหลือรวม</span>
+              <span id="summary-filtered-stock" class="text-base font-bold text-slate-800">75 ชิ้น</span>
+            </div>
+
+            <!-- Total Value (sum of price x stock) -->
+            <div class="text-right border-l border-slate-300 pl-6">
+              <span class="text-xs text-emerald-800 font-semibold block">มูลค่ารวม (Total Value)</span>
+              <div class="flex items-baseline justify-end gap-1">
+                <span id="summary-total-value" class="text-xl font-display font-bold text-emerald-700">3,645.00</span>
+                <span class="text-xs text-slate-600 font-medium">บาท</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- RIGHT: Challenge 5: Add New Product Form Component (4 cols) -->
+      <section class="lg:col-span-4 bg-white rounded-xl border border-slate-200 shadow-sm p-6 sticky top-24">
+        <div class="flex items-center justify-between pb-4 mb-4 border-b border-slate-200">
+          <div class="flex items-center space-x-2">
+            <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold">
+              <i data-lucide="plus" class="w-5 h-5"></i>
+            </div>
+            <div>
+              <h2 class="font-display font-bold text-base text-slate-900">เพิ่มสินค้าใหม่</h2>
+              <p class="text-xs text-slate-500">ลงทะเบียนสินค้าเข้าสู่ระบบ</p>
+            </div>
+          </div>
+          <span class="text-[11px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded border border-slate-200 font-mono">Form Validation</span>
+        </div>
+
+        <form id="add-product-form" onsubmit="handleFormSubmit(event)" novalidate class="space-y-4">
+          
+          <!-- Field 1: Product Name -->
+          <div>
+            <label for="form-name" class="block text-xs font-semibold text-slate-700 mb-1">
+              ชื่อสินค้า <span class="text-red-500">*</span>
+            </label>
+            <input type="text" id="form-name" oninput="validateForm()" placeholder="เช่น นมจืด, กางเกงยีนส์..."
+              class="w-full text-sm px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg focus:bg-white focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600 transition">
+            <p id="err-name" class="hidden text-xs text-red-600 mt-1 font-medium flex items-center gap-1">
+              <i data-lucide="alert-circle" class="w-3.5 h-3.5 inline"></i>
+              <span>ชื่อสินค้าต้องมีอย่างน้อย 3 ตัวอักษร</span>
+            </p>
+          </div>
+
+          <!-- Field 2: SKU -->
+          <div>
+            <label for="form-sku" class="block text-xs font-semibold text-slate-700 mb-1">
+              รหัสสินค้า (SKU) <span class="text-red-500">* (ต้องไม่ซ้ำกัน)</span>
+            </label>
+            <div class="flex gap-2">
+              <input type="text" id="form-sku" oninput="validateForm()" placeholder="เช่น FD-001, BEV-002..."
+                class="uppercase w-full text-sm font-mono px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg focus:bg-white focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600 transition">
+              <button type="button" onclick="generateAutoSku()" class="text-xs px-2.5 py-2 bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-700 rounded-lg font-medium whitespace-nowrap transition">
+                สุ่ม SKU
+              </button>
+            </div>
+            <p id="err-sku" class="hidden text-xs text-red-600 mt-1 font-medium flex items-center gap-1">
+              <i data-lucide="alert-circle" class="w-3.5 h-3.5 inline"></i>
+              <span id="err-sku-text">กรุณากรอก SKU</span>
+            </p>
+          </div>
+
+          <!-- Field 3: Category -->
+          <div>
+            <label for="form-category" class="block text-xs font-semibold text-slate-700 mb-1">
+              หมวดหมู่สินค้า <span class="text-red-500">*</span>
+            </label>
+            <div class="relative">
+              <select id="form-category" onchange="validateForm()"
+                class="w-full appearance-none text-sm px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg focus:bg-white focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600 transition cursor-pointer">
+                <option value="">-- กรุณาเลือกหมวดหมู่ --</option>
+                <option value="อาหาร">อาหาร</option>
+                <option value="เครื่องดื่ม">เครื่องดื่ม</option>
+                <option value="ของใช้">ของใช้</option>
+                <option value="เสื้อผ้า">เสื้อผ้า</option>
+              </select>
+              <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2.5 text-slate-500">
+                <i data-lucide="chevron-down" class="w-4 h-4"></i>
+              </div>
+            </div>
+            <p id="err-category" class="hidden text-xs text-red-600 mt-1 font-medium flex items-center gap-1">
+              <i data-lucide="alert-circle" class="w-3.5 h-3.5 inline"></i>
+              <span>กรุณาเลือกหมวดหมู่สินค้า</span>
+            </p>
+          </div>
+
+          <!-- Dual Field: Price & Stock -->
+          <div class="grid grid-cols-2 gap-3">
+            <!-- Field 4: Price -->
+            <div>
+              <label for="form-price" class="block text-xs font-semibold text-slate-700 mb-1">
+                ราคา (บาท) <span class="text-red-500">* (> 0)</span>
+              </label>
+              <input type="number" id="form-price" step="0.25" min="0" oninput="validateForm()" placeholder="0.00"
+                class="w-full text-sm px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg focus:bg-white focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600 transition">
+              <p id="err-price" class="hidden text-xs text-red-600 mt-1 font-medium flex items-center gap-1">
+                <i data-lucide="alert-circle" class="w-3.5 h-3.5 inline"></i>
+                <span>ราคาต้องมากกว่า 0 บาท</span>
+              </p>
+            </div>
+
+            <!-- Field 5: Stock -->
+            <div>
+              <label for="form-stock" class="block text-xs font-semibold text-slate-700 mb-1">
+                สต็อกเริ่มต้น <span class="text-red-500">* (>= 0)</span>
+              </label>
+              <input type="number" id="form-stock" min="0" step="1" oninput="validateForm()" placeholder="0"
+                class="w-full text-sm px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg focus:bg-white focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600 transition">
+              <p id="err-stock" class="hidden text-xs text-red-600 mt-1 font-medium flex items-center gap-1">
+                <i data-lucide="alert-circle" class="w-3.5 h-3.5 inline"></i>
+                <span>สต็อกต้องไม่ติดลบ (>= 0)</span>
+              </p>
+            </div>
+          </div>
+
+          <!-- Submit Button (Challenge 5: Disabled if invalid) -->
+          <div class="pt-3">
+            <button type="submit" id="btn-submit" disabled
+              class="w-full flex items-center justify-center space-x-2 py-2.5 px-4 rounded-lg font-medium text-sm transition-all duration-200 shadow-sm
+                     disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed disabled:shadow-none
+                     bg-emerald-600 hover:bg-emerald-700 text-white active:scale-[0.98]">
+              <i data-lucide="plus-circle" class="w-4 h-4"></i>
+              <span>เพิ่มสินค้า (Add Product)</span>
+            </button>
+            <p id="form-status-hint" class="text-center text-[11px] text-slate-400 mt-2">
+              * ปุ่มจะสามารถกดได้เมื่อกรอกข้อมูลถูกต้องครบทุกช่อง
+            </p>
+          </div>
+        </form>
+
+        <!-- SME Quick Tips -->
+        <div class="mt-6 p-3.5 rounded-lg bg-emerald-50/60 border border-emerald-100 text-xs text-slate-600 flex items-start space-x-2">
+          <i data-lucide="info" class="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0"></i>
+          <div>
+            <span class="font-bold text-emerald-900">เกร็ดสำหรับ SME:</span>
+            การอัพเดทราคาและรหัส SKU ที่เป็นมาตรฐาน จะช่วยให้ FlowAccount ออกใบเสร็จและตัดรอบบัญชีภาษีได้อย่างแม่นยำ
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- Footer Info -->
+  <footer class="mt-auto border-t border-slate-200 bg-white py-4 text-center text-xs text-slate-400">
+    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
+      <div>FlowAccount Frontend Challenge - Track B: Product Management Solution</div>
+      <div>สเปก: Table border, เขียว Header, สีแดงอ่อน Stock=0, ตัวหนาสีแดง Stock &lt; 10, Filter, Formula, Sell, Validation</div>
+    </div>
+  </footer>
+
+  <!-- Frontend Logic & State Management (Plain Vanilla JS implementing React/Vue/Angular concepts) -->
+  <script>
+    /**
+     * Interface / Type Definition: Product
+     * interface Product {
+     *   id: string;
+     *   name: string;
+     *   sku: string;
+     *   price: number;
+     *   stock: number;
+     *   category: "อาหาร" | "เครื่องดื่ม" | "ของใช้" | "เสื้อผ้า";
+     *   createdAt: Date;
+     * }
+     */
+
+    // Initial Mock Data according to Prompt
+    let products = [
+      {
+        id: "prod_1",
+        name: "ข้าวผัด",
+        sku: "FD-001",
+        price: 45.00,
+        stock: 20,
+        category: "อาหาร",
+        createdAt: new Date('2024-01-10')
+      },
+      {
+        id: "prod_2",
+        name: "น้ำส้ม",
+        sku: "BV-001",
+        price: 25.00,
+        stock: 50,
+        category: "เครื่องดื่ม",
+        createdAt: new Date('2024-01-12')
+      },
+      {
+        id: "prod_3",
+        name: "สบู่",
+        sku: "UC-001",
+        price: 35.00,
+        stock: 0, // Stock = 0 requirement test
+        category: "ของใช้",
+        createdAt: new Date('2024-01-15')
+      },
+      {
+        id: "prod_4",
+        name: "เสื้อยืด",
+        sku: "CL-001",
+        price: 299.00,
+        stock: 5, // Stock < 10 requirement test
+        category: "เสื้อผ้า",
+        createdAt: new Date('2024-01-18')
+      }
+    ];
+
+    // Filter & Search State
+    let selectedCategory = "ทั้งหมด";
+    let searchQuery = "";
+
+    // Badge styling map for categories
+    const categoryBadgeStyles = {
+      "อาหาร": "bg-amber-100 text-amber-800 border-amber-200",
+      "เครื่องดื่ม": "bg-blue-100 text-blue-800 border-blue-200",
+      "ของใช้": "bg-purple-100 text-purple-800 border-purple-200",
+      "เสื้อผ้า": "bg-pink-100 text-pink-800 border-pink-200"
+    };
+
+    /**
+     * Challenge 2: Filter method getFilteredProducts()
+     * Real-time filtering based on selectedCategory and optional search query
+     */
+    function getFilteredProducts() {
+      return products.filter(product => {
+        const matchesCategory = (selectedCategory === "ทั้งหมด") || (product.category === selectedCategory);
+        const matchesSearch = !searchQuery || 
+          product.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+          product.sku.toLowerCase().includes(searchQuery.toLowerCase());
+        return matchesCategory && matchesSearch;
+      });
+    }
+
+    /**
+     * Render the table and summary calculations
+     */
+    function render() {
+      const filtered = getFilteredProducts();
+      const tbody = document.getElementById("product-table-body");
+      const emptyState = document.getElementById("empty-state");
+
+      // Update global badges
+      document.getElementById("badge-total-items").innerText = `${products.length} รายการ`;
+      
+      const totalOverallStock = products.reduce((sum, p) => sum + p.stock, 0);
+      document.getElementById("stat-total-stock").innerText = `${totalOverallStock} ชิ้น`;
+      
+      const lowStockOverall = products.filter(p => p.stock < 10).length;
+      document.getElementById("stat-low-stock-count").innerText = `${lowStockOverall} รายการ`;
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = "";
+        emptyState.classList.remove("hidden");
+      } else {
+        emptyState.classList.add("hidden");
+        tbody.innerHTML = filtered.map(item => {
+          // Conditions:
+          // 1. stock = 0 -> background color light red (stock-empty-row)
+          // 2. stock < 10 -> stock text color red & bold (stock-low-text)
+          const isOutOfStock = item.stock === 0;
+          const isLowStock = item.stock < 10;
+          const rowClass = isOutOfStock ? "stock-empty-row" : "hover:bg-slate-50";
+          const stockClass = isLowStock ? "stock-low-text" : "text-slate-700 font-medium";
+          const badgeClass = categoryBadgeStyles[item.category] || "bg-slate-100 text-slate-800";
+
+          return `
+            <tr class="${rowClass} transition-colors">
+              <!-- SKU -->
+              <td class="py-3 px-4 font-mono font-medium text-slate-900 whitespace-nowrap">
+                ${item.sku}
+              </td>
+              
+              <!-- Product Name -->
+              <td class="py-3 px-4 font-medium text-slate-900">
+                <div class="flex items-center space-x-2">
+                  <span>${escapeHtml(item.name)}</span>
+                  ${isOutOfStock ? '<span class="text-[10px] bg-red-600 text-white font-bold px-1.5 py-0.5 rounded">หมด</span>' : ''}
+                </div>
+              </td>
+              
+              <!-- Category -->
+              <td class="py-3 px-4 text-center whitespace-nowrap">
+                <span class="inline-block text-xs px-2.5 py-0.5 rounded-full font-medium border ${badgeClass}">
+                  ${item.category}
+                </span>
+              </td>
+              
+              <!-- Price: 2 decimal places (toFixed(2)) -->
+              <td class="py-3 px-4 text-right font-mono font-semibold text-slate-800 whitespace-nowrap">
+                ฿${item.price.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </td>
+              
+              <!-- Stock (Red and Bold if < 10) -->
+              <td class="py-3 px-4 text-center whitespace-nowrap">
+                <span class="${stockClass} text-sm">
+                  ${item.stock.toLocaleString()}
+                </span>
+              </td>
+              
+              <!-- Challenge 4: Action (Sell Button) -->
+              <td class="py-3 px-4 text-center whitespace-nowrap">
+                <button 
+                  onclick="handleSellProduct('${item.id}')"
+                  ${isOutOfStock ? 'disabled' : ''}
+                  class="inline-flex items-center space-x-1 px-3 py-1.5 text-xs font-semibold rounded-md shadow-sm transition
+                    ${isOutOfStock 
+                      ? 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none' 
+                      : 'bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white'}">
+                  <i data-lucide="shopping-cart" class="w-3.5 h-3.5 mr-1"></i>
+                  <span>ขาย</span>
+                </button>
+              </td>
+            </tr>
+          `;
+        }).join("");
+      }
+
+      // Challenge 3: Calculate Summary for Filtered Products
+      // Total Value = sum of (price * stock)
+      const totalFilteredCount = filtered.length;
+      const totalFilteredStock = filtered.reduce((acc, curr) => acc + curr.stock, 0);
+      const totalFilteredValue = filtered.reduce((acc, curr) => acc + (curr.price * curr.stock), 0);
+
+      document.getElementById("summary-filtered-count").innerText = `${totalFilteredCount} รายการ`;
+      document.getElementById("summary-filtered-stock").innerText = `${totalFilteredStock.toLocaleString()} ชิ้น`;
+      document.getElementById("summary-total-value").innerText = totalFilteredValue.toLocaleString('th-TH', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+
+      // Refresh lucide icons
+      if (window.lucide) {
+        lucide.createIcons();
+      }
+    }
+
+    /**
+     * Challenge 2: Event handler for category dropdown change
+     */
+    function handleCategoryChange(e) {
+      selectedCategory = e.target.value;
+      render();
+    }
+
+    function handleSearchInput(e) {
+      searchQuery = e.target.value;
+      render();
+    }
+
+    /**
+     * Challenge 4: Sell Button Action
+     * 1. Check stock
+     * 2. Reduce stock by 1
+     * 3. Show notification
+     * 4. Disable if stock reaches 0
+     */
+    function handleSellProduct(productId) {
+      const productIndex = products.findIndex(p => p.id === productId);
+      if (productIndex === -1) return;
+
+      const product = products[productIndex];
+
+      if (product.stock <= 0) {
+        showToast(`สินค้า "${product.name}" หมดสต็อกแล้ว ไม่สามารถขายได้`, 'error');
+        return;
+      }
+
+      // Cut stock by 1
+      product.stock -= 1;
+      
+      showToast(`ขายสินค้า "${product.name}" สำเร็จ 1 ชิ้น (คงเหลือ ${product.stock} ชิ้น)`, 'success');
+      
+      // Re-validate form in case SKU uniqueness or stock checks matter
+      validateForm();
+      render();
+    }
+
+    /**
+     * Challenge 5: Validation Logic
+     * Fields:
+     * - Name: >= 3 chars
+     * - SKU: Non-empty & must be unique in products
+     * - Price: > 0
+     * - Stock: >= 0
+     * - Category: required
+     */
+    function validateForm() {
+      const nameInput = document.getElementById("form-name");
+      const skuInput = document.getElementById("form-sku");
+      const categoryInput = document.getElementById("form-category");
+      const priceInput = document.getElementById("form-price");
+      const stockInput = document.getElementById("form-stock");
+      const submitBtn = document.getElementById("btn-submit");
+
+      const errName = document.getElementById("err-name");
+      const errSku = document.getElementById("err-sku");
+      const errSkuText = document.getElementById("err-sku-text");
+      const errCat = document.getElementById("err-category");
+      const errPrice = document.getElementById("err-price");
+      const errStock = document.getElementById("err-stock");
+
+      const nameVal = nameInput.value.trim();
+      const skuVal = skuInput.value.trim().toUpperCase();
+      const catVal = categoryInput.value;
+      const priceVal = parseFloat(priceInput.value);
+      const stockVal = parseInt(stockInput.value, 10);
+
+      let isValid = true;
+
+      // 1. Name: >= 3 chars
+      if (nameVal.length > 0 && nameVal.length < 3) {
+        errName.classList.remove("hidden");
+        nameInput.classList.add("border-red-500", "bg-red-50/30");
+        isValid = false;
+      } else {
+        errName.classList.add("hidden");
+        nameInput.classList.remove("border-red-500", "bg-red-50/30");
+        if (nameVal.length === 0) isValid = false;
+      }
+
+      // 2. SKU: Unique check
+      const isSkuDuplicate = products.some(p => p.sku.toUpperCase() === skuVal);
+      if (skuVal.length > 0) {
+        if (isSkuDuplicate) {
+          errSkuText.innerText = `รหัส SKU "${skuVal}" ซ้ำกับสินค้าที่มีอยู่แล้ว`;
+          errSku.classList.remove("hidden");
+          skuInput.classList.add("border-red-500", "bg-red-50/30");
+          isValid = false;
+        } else {
+          errSku.classList.add("hidden");
+          skuInput.classList.remove("border-red-500", "bg-red-50/30");
+        }
+      } else {
+        errSku.classList.add("hidden");
+        skuInput.classList.remove("border-red-500", "bg-red-50/30");
+        isValid = false;
+      }
+
+      // 3. Category: Selected
+      if (catVal === "") {
+        isValid = false;
+      } else {
+        errCat.classList.add("hidden");
+      }
+
+      // 4. Price: > 0
+      if (priceInput.value !== "") {
+        if (isNaN(priceVal) || priceVal <= 0) {
+          errPrice.classList.remove("hidden");
+          priceInput.classList.add("border-red-500", "bg-red-50/30");
+          isValid = false;
+        } else {
+          errPrice.classList.add("hidden");
+          priceInput.classList.remove("border-red-500", "bg-red-50/30");
+        }
+      } else {
+        isValid = false;
+      }
+
+      // 5. Stock: >= 0
+      if (stockInput.value !== "") {
+        if (isNaN(stockVal) || stockVal < 0) {
+          errStock.classList.remove("hidden");
+          stockInput.classList.add("border-red-500", "bg-red-50/30");
+          isValid = false;
+        } else {
+          errStock.classList.add("hidden");
+          stockInput.classList.remove("border-red-500", "bg-red-50/30");
+        }
+      } else {
+        isValid = false;
+      }
+
+      // Update Submit button state
+      submitBtn.disabled = !isValid;
+      return isValid;
+    }
+
+    /**
+     * Challenge 5: Handle Form Submit
+     */
+    function handleFormSubmit(e) {
+      e.preventDefault();
+
+      if (!validateForm()) {
+        showToast("กรุณากรอกข้อมูลให้ถูกต้องตามเงื่อนไข", "error");
+        return;
+      }
+
+      const name = document.getElementById("form-name").value.trim();
+      const sku = document.getElementById("form-sku").value.trim().toUpperCase();
+      const category = document.getElementById("form-category").value;
+      const price = parseFloat(document.getElementById("form-price").value);
+      const stock = parseInt(document.getElementById("form-stock").value, 10);
+
+      const newProduct = {
+        id: "prod_" + Date.now(),
+        name,
+        sku,
+        category,
+        price,
+        stock,
+        createdAt: new Date()
+      };
+
+      // Add to list
+      products.push(newProduct);
+
+      // Clear form
+      document.getElementById("add-product-form").reset();
+      validateForm();
+
+      // Show success toast
+      showToast(`เพิ่มสินค้า "${name}" (SKU: ${sku}) เรียบร้อยแล้ว`, "success");
+
+      // Re-render
+      render();
+    }
+
+    /**
+     * Helper: Auto SKU generator for quick test
+     */
+    function generateAutoSku() {
+      const cat = document.getElementById("form-category").value || "GEN";
+      let prefix = "SKU";
+      if (cat === "อาหาร") prefix = "FD";
+      else if (cat === "เครื่องดื่ม") prefix = "BV";
+      else if (cat === "ของใช้") prefix = "UC";
+      else if (cat === "เสื้อผ้า") prefix = "CL";
+
+      const randomNum = Math.floor(100 + Math.random() * 900);
+      const generated = `${prefix}-${randomNum}`;
+      document.getElementById("form-sku").value = generated;
+      validateForm();
+    }
+
+    /**
+     * Toast Alert Helper
+     */
+    function showToast(message, type = 'success') {
+      const container = document.getElementById("toast-container");
+      const toast = document.createElement("div");
+      toast.className = `pointer-events-auto flex items-center space-x-3 px-4 py-3 rounded-lg shadow-lg border text-sm transform transition-all duration-300 translate-y-2 opacity-0 ${
+        type === 'success' 
+          ? 'bg-emerald-900 text-white border-emerald-700' 
+          : 'bg-red-800 text-white border-red-700'
+      }`;
+
+      const icon = type === 'success' ? 'check-circle' : 'alert-circle';
+      toast.innerHTML = `
+        <i data-lucide="${icon}" class="w-5 h-5 flex-shrink-0"></i>
+        <div class="font-medium text-xs sm:text-sm">${escapeHtml(message)}</div>
+      `;
+
+      container.appendChild(toast);
+      if (window.lucide) lucide.createIcons();
+
+      // Animation in
+      requestAnimationFrame(() => {
+        toast.classList.remove('translate-y-2', 'opacity-0');
+      });
+
+      // Auto remove
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-x-full');
+        setTimeout(() => toast.remove(), 300);
+      }, 3500);
+    }
+
+    function escapeHtml(string) {
+      return String(string).replace(/[&<>"']/g, function(s) {
+        return {
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          '"': '&quot;',
+          "'": '&#39;'
+        }[s];
+      });
+    }
+
+    // Initialize application on load
+    document.addEventListener("DOMContentLoaded", () => {
+      render();
+      validateForm();
+    });
+  </script>
+</body>
+</html>
