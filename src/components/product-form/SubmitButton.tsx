@@ -11,9 +11,6 @@ export function SubmitButton({ disabled }: { disabled: boolean }) {
         <PlusCircle className="h-4 w-4" />
         <span>เพิ่มสินค้า (Add Product)</span>
       </button>
-      <p className="mt-2 text-center text-[11px] text-slate-400">
-        * ปุ่มจะสามารถกดได้เมื่อกรอกข้อมูลถูกต้องครบทุกช่อง
-      </p>
     </div>
   )
 }

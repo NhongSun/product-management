@@ -12,9 +12,6 @@ export function FormHeader() {
           <p className="text-xs text-slate-500">ลงทะเบียนสินค้าเข้าสู่ระบบ</p>
         </div>
       </div>
-      <span className="rounded border border-slate-200 bg-slate-100 px-2 py-0.5 font-mono text-[11px] text-slate-600">
-        Form Validation
-      </span>
     </div>
   )
 }

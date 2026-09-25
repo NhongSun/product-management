@@ -1,15 +1,9 @@
-import { Calculator } from 'lucide-react'
 import { formatBaht, formatNumber } from '../../utils/format'
 import type { ProductSummary as Summary } from '../../utils/productStats'
 
 export function ProductSummary({ summary }: { summary: Summary }) {
   return (
-    <div className="flex flex-col items-center justify-between gap-4 border-t border-slate-200 bg-slate-50 p-5 sm:flex-row">
-      <div className="flex items-center gap-2 text-xs text-slate-500">
-        <Calculator className="h-4 w-4 text-slate-400" />
-        <span>สรุปตามเงื่อนไขตัวกรองปัจจุบัน (Real-time calculation)</span>
-      </div>
-
+    <div className="flex flex-col items-center justify-end gap-4 border-t border-slate-200 bg-slate-50 p-5 sm:flex-row">
       <div className="flex flex-wrap items-center gap-6">
         <SummaryItem label="จำนวนรายการที่แสดง" value={`${summary.count} รายการ`} />
         <SummaryItem
