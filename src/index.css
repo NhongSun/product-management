@@ -1,0 +1,17 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-sans: 'Sarabun', sans-serif;
+  --font-display: 'Prompt', sans-serif;
+  --color-flow-header: #1e7e48;
+}
+
+body {
+  @apply bg-slate-50 font-sans text-slate-800;
+}
+
+h1,
+h2,
+h3 {
+  @apply font-display;
+}
