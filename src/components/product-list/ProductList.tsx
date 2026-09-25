@@ -9,7 +9,6 @@ import { EmptyState } from './EmptyState'
 import { ProductSummary } from './ProductSummary'
 import { ProductTable } from './ProductTable'
 import { ProductToolbar } from './ProductToolbar'
-import { StockLegend } from './StockLegend'
 
 interface ProductListProps {
   products: Product[]
@@ -38,7 +37,6 @@ export function ProductList({ products, onSell }: ProductListProps) {
         search={searchQuery}
         onSearchChange={setSearchQuery}
       />
-      <StockLegend />
       {filteredProducts.length > 0 ? (
         <ProductTable products={filteredProducts} onSell={onSell} />
       ) : (
